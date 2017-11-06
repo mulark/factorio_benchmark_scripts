@@ -1,5 +1,11 @@
 #run every map in the saves directory?
 [bool]$allmaps = 0
+#Number of seconds of simulation (higher = less error)
+$seconds = 150
+#Number of runs per map
+$runs = 5
+
+#End of user variables
 
 if ($allmaps)
 	{
@@ -7,15 +13,9 @@ if ($allmaps)
 	}
 	else
 	{
-	[string[]]$maps = "35 40"
+	[string[]]$maps = ""#Name of every map, space delimited
 	$maps = $maps -split " "
 }
-#Number of seconds of simulation (higher = less error)
-$seconds = 150
-#Number of runs per map
-$runs = 5
-
-#End of user variables
 
 #Put the name of every map in the result file
 $maps -join "," >> test_results.csv
