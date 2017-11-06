@@ -1,5 +1,5 @@
 #run every map in the saves directory?
-[bool]$allmaps = 0
+[bool]$allmaps = 1
 #Number of seconds of simulation (higher = less error)
 $seconds = 150
 #Number of runs per map
@@ -13,7 +13,8 @@ if ($allmaps)
 	}
 	else
 	{
-	[string[]]$maps = ""#Name of every map, space delimited
+	#Name of every map, space delimited
+	[string[]]$maps = "TheNameOfMap1.zip Map2 MapN"
 	$maps = $maps -split " "
 }
 
@@ -52,8 +53,8 @@ while ($i -lt $runs){
 		#select the first field from the last two lines (the time of the last two events)
 		$array = cat .\factorio-current.log | cut -f 1 | Select-Object -last 2
 		
-		#Fill the index of the current map with the calculated milliseconds
-		[string[]]$ms += [math]::Round(($array[1] - $array[0]) / ($ticks / 1000),3)
+		#Fill the index of the current map with the calculated milliseconds, then round to 4 decimal places
+		[string[]]$ms += [math]::Round(($array[1] - $array[0]) / ($ticks / 1000),4)
 	}
 	#Record the milliseconds from all maps this run
 	$ms -join"," >> test_results.csv
