@@ -38,10 +38,10 @@ do
     for i in "${maps[@]}"
     do
         if ($alternate_mode) ; then
-        ms=($(./factorio --benchmark "$i" --benchmark-ticks "$ticks" --disable-audio | grep avg | awk '{print $2}'))
-        echo -n $ms, >> $filename.alternate.csv
+            ms=($(./factorio --benchmark "$i" --benchmark-ticks "$ticks" --disable-audio | grep avg | awk '{print $2}'))
+            echo -n $ms, >> $filename.alternate.csv
         else
-        ./factorio --benchmark "$i" --benchmark-ticks "$ticks" --disable-audio
+            ./factorio --benchmark "$i" --benchmark-ticks "$ticks" --disable-audio
         fi
         #roundabout way of gathering benchmark time not strictly necessary on linux
         #but to keep results more consistent between windows and linux it is used
@@ -50,6 +50,7 @@ do
         time=$(printf %.4f $(echo "$ms / $ticks * 1000" |bc -l))
         echo -n $time, >> $filename.csv
     done
+    #attach a newline to every run
     echo >> $filename.csv
     if ($alternate_mode) ; then echo >> $filename.alternate.csv ; fi
 done
