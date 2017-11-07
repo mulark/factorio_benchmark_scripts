@@ -4,19 +4,28 @@
 $seconds = 150
 #Number of runs per map
 $runs = 5
+#pattern match run every map containing the string $pattern
+[string]$pattern = ""
 
 #End of user variables
 
 if ($allmaps)
 	{
-	[string[]]$maps = dir ..\..\saves -n
+		if ($pattern -ne "")
+		{
+			[string[]]$maps = dir ..\..\saves -n | select-string $pattern
+		}
+		else
+		{
+			[string[]]$maps = dir ..\..\saves -n
+		}
 	}
 	else
 	{
 	#Name of every map, space delimited
 	[string[]]$maps = "TheNameOfMap1.zip Map2 MapN"
 	$maps = $maps -split " "
-}
+	}
 
 #Put the name of every map in the result file
 $maps -join "," >> test_results.csv
