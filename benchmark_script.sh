@@ -12,7 +12,7 @@ seconds=150
 runs=5
 
 #Restrict the number of maps tested based on a pattern matching string
-pattern="foo"
+pattern=""
 
 #Name of the output file
 filename="test_results"
