@@ -1,56 +1,37 @@
 #!/bin/bash
 
-#TODO actually implement maps by name
-#Semi-obsolete by pattern matching
-allmaps=true
+#pattern matching; Match maps containing this pattern only
+pattern="Foo Bar"
 
-#default off as it is a linux exclusive measurement
-alternate_mode=false
+#seconds of execution; How long should the map be run
+seconds=30
 
-#How long should each map be tested and how many times
-seconds=150
-runs=5
+#runs; number of times each map should be ran for the duration specified
+runs=1
 
-#Restrict the number of maps tested based on a pattern matching string
-pattern=""
 
-#Name of the output file
-filename="test_results"
 
-#Use seconds to calculate the ticks, alternatively specify ticks manually
+#internal variables
 ticks=$(($seconds * 60))
+filename="test_results"
+OLDIFS=$IFS
+IFS=$'\n'
 
-if ($allmaps) ; then
-    if [ -z "$pattern" ] ; then
-        #If no pattern is supplied don't attempt to pass the pattern to grep
-        maps=($(ls -1 ../../saves))
-        ls -1 ../../saves | paste -sd "," >> $filename.csv
-        if ($alternate_mode) ; then ls -1 ../../saves | paste -sd "," >> $filename.alternate.csv ; fi
-    else
-        maps=($(ls -1 ../../saves | grep $pattern))
-        ls -1 ../../saves | grep $pattern | paste -sd "," >> $filename.csv
-        if ($alternate_mode) ; then ls -1 ../../saves | grep $pattern | paste -sd "," >> $filename.alternate.csv ; fi
-    fi
-fi
-
+#main loop
+echo "map_name,run_index,startup_time,end_time,avg_ms,ticks,UPS" >> $filename.csv
 for ((j=0; j<runs; j++))
-do
-    for i in "${maps[@]}"
     do
-        if ($alternate_mode) ; then
-            ms=($(./factorio --benchmark "$i" --benchmark-ticks "$ticks" --disable-audio | grep avg | awk '{print $2}'))
-            echo -n $ms, >> $filename.alternate.csv
-        else
-            ./factorio --benchmark "$i" --benchmark-ticks "$ticks" --disable-audio
-        fi
-        #roundabout way of gathering benchmark time not strictly necessary on linux
-        #but to keep results more consistent between windows and linux it is used
-        cp ../../factorio-current.log .
-        ms=($(tail -n 2 factorio-current.log | awk '{print $1}' | paste -s | awk '{print $2 - $1}'))
-        time=$(printf %.4f $(echo "$ms / $ticks * 1000" |bc -l))
-        echo -n $time, >> $filename.csv
+    for map in $(ls ../../saves | grep "$pattern")
+        do
+            avg_ms=$(./factorio --benchmark "$map" --benchmark-ticks "$ticks" --disable-audio | grep "avg" | awk '{print $2}')
+            cp ../../factorio-current.log .
+            startup_time=$(grep "Loading script.dat" factorio-current.log | awk '{print $1}')
+            end_time=$(grep "Goodbye" factorio-current.log | awk '{print $1}')
+            run_index=$(echo $j+1 | bc)
+            UPS=$(echo "scale=2; 1000/$avg_ms" | bc)
+            #time_delta_avgms=$(echo "scale=3; 1000*($end_time-$startup_time)/$ticks" | bc)
+            echo $map,$run_index,$startup_time,$end_time,$avg_ms,$ticks,$UPS >> $filename.csv
+        done
     done
-    #attach a newline to every run
-    echo >> $filename.csv
-    if ($alternate_mode) ; then echo >> $filename.alternate.csv ; fi
-done
+
+IFS=$OLDIFS
