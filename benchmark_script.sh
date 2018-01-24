@@ -39,7 +39,7 @@ for ((j=0; j<runs; j++))
             startup_time=$(grep "Loading script.dat" factorio-current.log | awk '{print $1}')
             end_time=$(grep "Goodbye" factorio-current.log | awk '{print $1}')
             run_index=$(echo $j+1 | bc)
-            UPS=$(echo "scale=2; $ticks/$execution_time*1000" | bc)
+            UPS=$(echo "scale=4; $ticks/$execution_time*1000" | bc)
             #time_delta_avgms=$(echo "scale=3; 1000*($end_time-$startup_time)/$ticks" | bc)
             echo $map,$run_index,$startup_time,$end_time,$avg_ms,$min_ms,$max_ms,$ticks,$execution_time,$UPS >> $filename.csv
         done
