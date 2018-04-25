@@ -21,7 +21,7 @@ IFS=$'\n'
 
 #main loop
 if [ -n "$(ls ../../saves | grep "$pattern")" ]; then
-    echo "map_name,run_index,startup_time,end_time,avg_ms,min_ms,max_ms,ticks,execution_time,effective_UPS" >> $filename.csv
+    echo "map_name,run_index,startup_time,end_time,avg_ms,min_ms,max_ms,ticks,execution_time,effective_UPS,factorio_version" >> $filename.csv
     else
     echo "No maps were found with the specified pattern \"$pattern\""
 fi
@@ -33,6 +33,7 @@ for ((j=0; j<runs; j++))
             avg_ms=$(cat temp | grep "avg:" | awk '{print $2}')
             min_ms=$(cat temp | grep "min:" | awk '{print $5}')
             max_ms=$(cat temp | grep "max:" | awk '{print $8}')
+            factorio_version=$(head temp -n 1 | awk '{print $5}')
             execution_time=$(cat temp | grep "Performed" | awk '{print $5}')
             rm temp
             cp ../../factorio-current.log .
@@ -41,7 +42,7 @@ for ((j=0; j<runs; j++))
             run_index=$(echo $j+1 | bc)
             UPS=$(echo "scale=4; $ticks/$execution_time*1000" | bc)
             #time_delta_avgms=$(echo "scale=3; 1000*($end_time-$startup_time)/$ticks" | bc)
-            echo $map,$run_index,$startup_time,$end_time,$avg_ms,$min_ms,$max_ms,$ticks,$execution_time,$UPS >> $filename.csv
+            echo $map,$run_index,$startup_time,$end_time,$avg_ms,$min_ms,$max_ms,$ticks,$execution_time,$UPS,$factorio_version >> $filename.csv
         done
     done
 
