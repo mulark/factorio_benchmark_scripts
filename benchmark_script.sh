@@ -20,14 +20,14 @@ OLDIFS=$IFS
 IFS=$'\n'
 
 #main loop
-if [ -n "$(ls ../../saves | grep "$pattern")" ]; then
+if [ -n "$(ls -p ../../saves | grep -v / | grep "$pattern")" ]; then
     echo "map_name,run_index,startup_time,end_time,avg_ms,min_ms,max_ms,ticks,execution_time,effective_UPS,factorio_version" >> $filename.csv
     else
     echo "No maps were found with the specified pattern \"$pattern\""
 fi
 for ((j=0; j<runs; j++))
     do
-    for map in $(ls ../../saves | grep "$pattern")
+    for map in $(ls -p ../../saves | grep -v / | grep "$pattern")
         do
             ./factorio --benchmark "$map" --benchmark-ticks "$ticks" --disable-audio > temp
             avg_ms=$(cat temp | grep "avg:" | awk '{print $2}')
