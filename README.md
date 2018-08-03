@@ -11,5 +11,4 @@ A collection of scripts to streamline benchmarking Factorio. Used to log a large
 5. Run the script
 6. The file test_results.csv will be output into the bin directory containing the logged data.
 
-
 Note: intended for use on Factorio 0.16.51. Use on other versions of Factorio might not work.
