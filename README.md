@@ -10,3 +10,5 @@ A collection of scripts to streamline benchmarking Factorio. Used to log a large
 4a. Modify the script to match the patten you specify (for instance if all your maps are redsci.v1, redsci.v2, redsci.v3, the pattern "redsci" would match and benchmark all those saves.
 5. Run the script
 6. The file test_results.csv will be output into the bin directory containing the logged data.
+
+Note: intended for use on Factorio 0.16.51. Use on other versions of Factorio might not work.
