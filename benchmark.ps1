@@ -1,3 +1,5 @@
+#The minimum powershell version required is v3. Use $PSVersionTable to read your currently installed version
+
 #pattern matching; Match maps containing this pattern only. If no pattern is supplied all saves will be benchmarked
 [string]$pattern = "Foo Bar"
 
