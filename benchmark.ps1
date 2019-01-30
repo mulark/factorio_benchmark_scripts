@@ -49,14 +49,14 @@ while ($i -lt $runs)
 		rm temp1
 		
 		$map_name = $maps[$k]
-        $avg_ms = ((cat temp | Select-String "avg:") -split " ")[2]
+		$avg_ms = ((cat temp | Select-String "avg:") -split " ")[2]
 		$min_ms = ((cat temp | Select-String "avg:") -split " ")[5]
-        $max_ms = ((cat temp | Select-String "avg:") -split " ")[8]
-        $factorio_version = ((cat temp -First 1) -split " ")[5]
+		$max_ms = ((cat temp | Select-String "avg:") -split " ")[8]
+		$factorio_version = ((cat temp -First 1) -split " ")[5]
 		$execution_time = ((cat temp | Select-String "Performed") -split " ")[4]
 		$startup_time = ((cat temp | Select-String "Loading script.dat") -split " ")[1]
-        $end_time = ((cat temp -last 1) -split " ")[1]
-        $effective_UPS  = [math]::Round((1000 * $ticks / $execution_time), 2)
+		$end_time = ((cat temp -last 1) -split " ")[1]
+		$effective_UPS  = [math]::Round((1000 * $ticks / $execution_time), 2)
 		$run_index = $i + 1
 		
 		echo "$map_name,$run_index,$startup_time,$end_time,$avg_ms,$min_ms,$max_ms,$ticks,$execution_time,$effective_UPS,$factorio_version,$platform" >> test_results.csv
