@@ -37,7 +37,7 @@ for ((j=1; j<=runs; j++))
             avg_ms=$(cat $temp | grep "avg:" | awk '{print $2}')
             runIndex=$j
             execution_time=$(cat $temp | grep "Performed" | awk '{print $5}')
-            rm ./$temp
+            rm $temp
             timestamp=$(cat verbose_temp | awk -F ',' '{print $2}' | tail -n+2 | paste -s -d+ - | bc)
             wholeUpdateSum=$(cat verbose_temp | awk -F ',' '{print $3}' | tail -n+2 | paste -s -d+ - | bc)
             gameUpdateSum=$(cat verbose_temp | awk -F ',' '{print $5}' | tail -n+2 | paste -s -d+ - | bc)
