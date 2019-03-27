@@ -13,6 +13,7 @@ filename=verbose_test_results.csv
 
 echo "Running verbose benchmark"
 startTime=$(date +%s)
+temp=$(mktemp)
 
 #main loop
 if [ -n "$(ls ../../saves | grep "$pattern")" ]; then
@@ -26,17 +27,17 @@ fi
 factorio_version=$(./factorio --version | head -n1 | awk '{ print $2 }')
 executable_type=$(./factorio --version | head -n1 | awk -F ',' '{ print $2 $3 }' | tr -d ")")
 
-for ((j=0; j<runs; j++))
+for ((j=1; j<=runs; j++))
     do
     for map in $(ls -p ../../saves | grep -v / | grep "$pattern")
         do
             echo "$map"
-            ./factorio --benchmark "$map" --benchmark-ticks "$ticks" --benchmark-verbose all > temp
-            cat temp | grep 'tick\|t[0-9]' | tail -n$ticks > verbose_temp
-            avg_ms=$(cat temp | grep "avg:" | awk '{print $2}')
-            runIndex=$(echo $j+1 | bc)
-            execution_time=$(cat temp | grep "Performed" | awk '{print $5}')
-            rm ./temp
+            ./factorio --benchmark "$map" --benchmark-ticks "$ticks" --benchmark-verbose all > $temp
+            cat $temp | grep 'tick\|t[0-9]' | tail -n$ticks > verbose_temp
+            avg_ms=$(cat $temp | grep "avg:" | awk '{print $2}')
+            runIndex=$j
+            execution_time=$(cat $temp | grep "Performed" | awk '{print $5}')
+            rm ./$temp
             timestamp=$(cat verbose_temp | awk -F ',' '{print $2}' | tail -n+2 | paste -s -d+ - | bc)
             wholeUpdateSum=$(cat verbose_temp | awk -F ',' '{print $3}' | tail -n+2 | paste -s -d+ - | bc)
             gameUpdateSum=$(cat verbose_temp | awk -F ',' '{print $5}' | tail -n+2 | paste -s -d+ - | bc)
