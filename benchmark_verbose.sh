@@ -14,6 +14,7 @@ filename=verbose_test_results.csv
 echo "Running verbose benchmark"
 startTime=$(date +%s)
 temp=$(mktemp)
+IFS=$'\n'
 
 #main loop
 if [ -n "$(ls ../../saves | grep "$pattern")" ]; then
@@ -33,8 +34,15 @@ for ((j=1; j<=runs; j++))
         do
             echo "$map"
             ./factorio --benchmark "$map" --benchmark-ticks "$ticks" --benchmark-verbose all > $temp
-            cat $temp | grep 'tick\|t[0-9]' | tail -n$ticks > verbose_temp
-            avg_ms=$(cat $temp | grep "avg:" | awk '{print $2}')
+            possible_error=$(grep "Error" $temp)
+            if [ -n "$possible_error" ]; then
+                echo "An error was detected, halting benchmarks."
+                echo "$possible_error"
+                exit 1
+            fi
+            map_version=$(grep "Info Scenario.cpp.*Map version" | awk -F' |-' '{print $(NF-1)}')
+            grep 'tick\|t[0-9]' $temp | tail -n$ticks > verbose_temp
+            avg_ms=$(grep "avg:" $temp | awk '{print $2}')
             runIndex=$j
             execution_time=$(cat $temp | grep "Performed" | awk '{print $5}')
             rm $temp
@@ -68,7 +76,7 @@ for ((j=1; j<=runs; j++))
             elasped=$(echo "$run1_End - $startTime" | bc)
             if (( $runs > 1 )); then
                 timeOfFinishEstimate=$(echo "$elasped * ($runs - 1) + $run1_End" | bc)
-                echo $timeOfFinishEstimate
+                echo "t$(echo "$(date +%s)-$timeOfFinishEstimate" | bc)"
             fi
         fi
 
