@@ -3,47 +3,50 @@
 trap "exit" SIGINT
 
 #pattern matching; Match maps containing this pattern only
-pattern="test-000017"
-
-ticks=20000
+pattern="test-000035"
+map_pool="$(ls -p ../../saves | grep -v / | grep "$pattern")"
+ticks=10000
 
 #runs; number of times each map should be ran for the duration specified
 runs=3
 filename=verbose_test_results.csv
 
-echo "Running verbose benchmark"
 startTime=$(date +%s)
 temp=$(mktemp)
 IFS=$'\n'
 
-#main loop
-if [ -n "$(ls ../../saves | grep "$pattern")" ]; then
-    echo $(ls ../../saves | grep "$pattern")
-    echo "map_name,ticks,runIndex,avg_ms,execution_time,factorio_version,executable_type,wholeUpdateSum,gameUpdateSum,circuitNetworkUpdateSum,transportLinesUpdateSum,fluidsUpdateSum,entityUpdateSum,mapGeneratorSum,electricNetworkUpdateSum,logisticManagerUpdateSum,constructionManagerUpdateSum,trainsSum,trainPathFinderSum,commanderSum,chartRefreshSum,luaGarbageIncrementalSum,chartUpdateSum,scriptUpdateSum" >> $filename
-    else
+if [ -n "$map_pool" ]; then
+    echo "Checking for possible errors"
+    for map in $map_pool
+    do
+        possible_error=$(./factorio --benchmark "$map" --benchmark-ticks 1 --benchmark-verbose all | grep "Error")
+        if [ -n "$possible_error" ]; then
+            echo "An error was detected, the map \"$map\" had an error:"
+            echo "$possible_error"
+            exit 1
+        fi
+    done
+    echo $map_pool
+    echo "map_name,ticks,run_index,avg_ms,execution_time,factorio_version,executable_type,wholeUpdateSum,gameUpdateSum,circuitNetworkUpdateSum,transportLinesUpdateSum,fluidsUpdateSum,entityUpdateSum,mapGeneratorSum,electricNetworkUpdateSum,logisticManagerUpdateSum,constructionManagerUpdateSum,trainsSum,trainPathFinderSum,commanderSum,chartRefreshSum,luaGarbageIncrementalSum,chartUpdateSum,scriptUpdateSum" >> $filename
+else
     echo "No maps were found with the specified pattern \"$pattern\""
     exit 0
 fi
+
+echo "Running verbose benchmark"
 
 factorio_version=$(./factorio --version | head -n1 | awk '{ print $2 }')
 executable_type=$(./factorio --version | head -n1 | awk -F ',' '{ print $2 $3 }' | tr -d ")")
 
 for ((j=1; j<=runs; j++))
     do
-    for map in $(ls -p ../../saves | grep -v / | grep "$pattern")
+    for map in $map_pool
         do
-            echo "$map"
             ./factorio --benchmark "$map" --benchmark-ticks "$ticks" --benchmark-verbose all > $temp
-            possible_error=$(grep "Error" $temp)
-            if [ -n "$possible_error" ]; then
-                echo "An error was detected, halting benchmarks."
-                echo "$possible_error"
-                exit 1
-            fi
-            map_version=$(grep "Info Scenario.cpp.*Map version" | awk -F' |-' '{print $(NF-1)}')
+            map_version=$(grep "Info Scenario.cpp.*Map version" $temp | awk -F' |-' '{print $(NF-1)}')
             grep 'tick\|t[0-9]' $temp | tail -n$ticks > verbose_temp
             avg_ms=$(grep "avg:" $temp | awk '{print $2}')
-            runIndex=$j
+            run_index=$j
             execution_time=$(cat $temp | grep "Performed" | awk '{print $5}')
             rm $temp
             timestamp=$(cat verbose_temp | awk -F ',' '{print $2}' | tail -n+1 | paste -s -d+ - | bc)
@@ -65,7 +68,7 @@ for ((j=1; j<=runs; j++))
             chartUpdateSum=$(cat verbose_temp | awk -F ',' '{print $30}' | tail -n+1 | paste -s -d+ - | bc)
             scriptUpdateSum=$(cat verbose_temp | awk -F ',' '{print $31}' | tail -n+1 | paste -s -d+ - | bc)
             rm ./verbose_temp
-            echo "$map,$ticks,$runIndex,$avg_ms,$execution_time,$factorio_version,$executable_type,$wholeUpdateSum,$gameUpdateSum,$circuitNetworkUpdateSum,$transportLinesUpdateSum,$fluidsUpdateSum,$entityUpdateSum,$mapGeneratorSum,$electricNetworkUpdateSum,$logisticManagerUpdateSum,$constructionManagerUpdateSum,$trainsSum,$trainPathFinderSum,$commanderSum,$chartRefreshSum,$luaGarbageIncrementalSum,$chartUpdateSum,$scriptUpdateSum" >> $filename
+            echo "$map,$ticks,$run_index,$avg_ms,$execution_time,$factorio_version,$executable_type,$wholeUpdateSum,$gameUpdateSum,$circuitNetworkUpdateSum,$transportLinesUpdateSum,$fluidsUpdateSum,$entityUpdateSum,$mapGeneratorSum,$electricNetworkUpdateSum,$logisticManagerUpdateSum,$constructionManagerUpdateSum,$trainsSum,$trainPathFinderSum,$commanderSum,$chartRefreshSum,$luaGarbageIncrementalSum,$chartUpdateSum,$scriptUpdateSum" >> $filename
             if [ -n "$timeOfFinishEstimate" ]; then
                 echo "t$(echo "$(date +%s)-$timeOfFinishEstimate" | bc)"
             fi
