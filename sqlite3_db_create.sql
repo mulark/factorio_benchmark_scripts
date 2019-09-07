@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `benchmark_collection` (
 ,  `kernel_version` text DEFAULT NULL
 );
 
-CREATE TABLE IF NOT EXISTS `benchmark_base2` (
+CREATE TABLE IF NOT EXISTS `benchmark_base` (
   `benchmark_id` integer NOT NULL PRIMARY KEY AUTOINCREMENT
 ,  `map_name` varchar(100) DEFAULT NULL
 ,  `saved_map_version` varchar(10) DEFAULT NULL
