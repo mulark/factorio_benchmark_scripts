@@ -62,7 +62,7 @@ do
     current_run_index=0
     temp2=$(mktemp)
     echo "run_index,tick_number,wholeUpdate,gameUpdate,circuitNetworkUpdate,transportLinesUpdate,fluidsUpdate,entityUpdate,mapGenerator,electricNetworkUpdate,logisticManagerUpdate,constructionManagerUpdate,pathFinder,trains,trainPathFinder,commander,chartRefresh,luaGarbageIncremental,chartUpdate,scriptUpdate,benchmark_id" >> $temp2
-    for line in $(grep 't[0-9]*[0-9]' $temp); do
+    for line in $(grep 't[0-9]*[0-9],[0-9]*,[0-9]*' $temp); do
         if [[ -n $(echo $line | grep "t0,") ]]; then
             let current_run_index++
         fi
