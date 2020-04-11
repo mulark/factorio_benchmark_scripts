@@ -4,9 +4,9 @@
 [string]$pattern = "Foo Bar"
 
 #for how many ticks should each run of a map be ran
-$ticks = 25000
+$ticks = 1000
 #runs; number of times to benchmark each map
-$runs = 1
+$runs = 5
 
 [string]$filename = "test_results"
 [string]$platform = "WindowsStandalone"
@@ -16,11 +16,23 @@ $runs = 1
 
 if ($pattern -ne "")
 {
-	[string[]]$maps = dir ..\..\saves -n -file | select-string $pattern
+	if (test-path ..\..\saves) {
+		[string[]]$maps = dir ..\..\saves -n -file | select-string $pattern
+	} elseif (test-path $env:APPDATA\Factorio\saves) {
+		[string[]]$maps = dir $env:APPDATA\Factorio\saves -n -file | select-string $pattern
+	} else {
+		echo "Failed to find the factorio saves directory"
+	}
 }
 else
 {
-	[string[]]$maps = dir ..\..\saves -n -file
+	if (test-path ..\..\saves) {
+		[string[]]$maps = dir ..\..\saves -n -file
+	} elseif (test-path $env:APPDATA\Factorio\saves) {
+		[string[]]$maps = dir $env:APPDATA\Factorio\saves -n -file
+	} else {
+		echo "Failed to find the factorio saves directory"
+	}
 }
 
 if ($maps.length -eq 0)
